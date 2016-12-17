@@ -1,40 +1,73 @@
 import React, { Component } from 'react'
-import { View, Animated, Easing } from 'react-native'
+import {
+  View,
+  StyleSheet,
+  Animated,
+  Text,
+  TouchableWithoutFeedback
+} from 'react-native'
 
 class App extends Component {
-  componentWillMount () {
-    this.animatedValue = new Animated.Value(100)
+  constructor (props) {
+    super(props)
+
+    this.handlePressIn = this.handlePressIn.bind(this)
+    this.handlePressOut = this.handlePressOut.bind(this)
   }
 
-  componentDidMount () {
-    Animated.timing(this.animatedValue, {
-      toValue: 150,
-      duration: 1000,
-      easing: Easing.bounce
+  componentWillMount () {
+    this.animatedValue = new Animated.Value(1)
+  }
+
+  handlePressIn () {
+    Animated.spring(this.animatedValue, {
+      toValue: 0.5
+    }).start()
+  }
+
+  handlePressOut () {
+    Animated.spring(this.animatedValue, {
+      toValue: 1,
+      friction: 3,
+      tension: 40
     }).start()
   }
 
   render () {
-    const animatedStyle = { height: this.animatedValue }
+    const animatedStyle = {
+      transform: [{ scale: this.animatedValue }]
+    }
     return (
       <View style={styles.container}>
-        <Animated.View style={[styles.box, animatedStyle]} />
+        <TouchableWithoutFeedback
+          onPressIn={this.handlePressIn}
+          onPressOut={this.handlePressOut}
+        >
+          <Animated.View style={[styles.button, animatedStyle]}>
+            <Text style={styles.text}>Press Me</Text>
+          </Animated.View>
+        </TouchableWithoutFeedback>
       </View>
     )
   }
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
   },
-  box: {
+  button: {
     backgroundColor: '#333',
     width: 100,
-    height: 100
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  text: {
+    color: '#FFF'
   }
-}
+})
 
 export default App
