@@ -2,17 +2,14 @@ import React, { Component } from 'react'
 import {
   StyleSheet,
   View,
-  Text,
   Animated
 } from 'react-native'
 
 class App extends Component {
-
   componentWillMount () {
     this.animatedValue = new Animated.Value(0)
   }
-
-  componentDidMout () {
+  componentDidMount () {
     Animated.timing(this.animatedValue, {
       toValue: 150,
       duration: 1500
@@ -22,10 +19,13 @@ class App extends Component {
   render () {
     const interpolateColor = this.animatedValue.interpolate({
       inputRange: [0, 150],
-      outputRange: ['rgb(0, 0, 0)', 'rgb(51,250, 170)']
+      outputRange: ['rgb(0,0,0)', 'rgb(51, 250, 170)']
     })
     const animatedStyle = {
-      backgroundColor: interpolateColor
+      backgroundColor: interpolateColor,
+      transform: [
+        { translateY: this.animatedValue }
+      ]
     }
     return (
       <View style={styles.container}>
