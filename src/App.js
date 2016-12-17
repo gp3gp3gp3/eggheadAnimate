@@ -8,31 +8,39 @@ import {
 
 class App extends Component {
   componentWillMount () {
-    this.animatedValue = new Animated.Value(0)
+    this.animatedValue1 = new Animated.Value(0)
+    this.animatedValue2 = new Animated.Value(1)
   }
 
   componentDidMount () {
-    Animated.timing(this.animatedValue, {
-      toValue: 1,
-      duration: 1500
-    }).start()
+    Animated.sequence([
+      Animated.timing(this.animatedValue1, {
+        toValue: 150,
+        duration: 1000
+      }),
+      Animated.spring(this.animatedValue2, {
+        toValue: 3
+      }),
+      Animated.timing(this.animatedValue1, {
+        toValue: 0,
+        duration: 1000
+      }),
+      Animated.spring(this.animatedValue2, {
+        toValue: 0.5
+      })
+    ]).start()
   }
 
   render () {
-    const interpolateRotation = this.animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['0rad', '10rad']
-    })
     const animatedStyle = {
       transform: [
-        { rotate: interpolateRotation }
+        { translateY: this.animatedValue1 },
+        { scale: this.animatedValue2 }
       ]
     }
     return (
       <View style={styles.container}>
-        <Animated.View style={[styles.box, animatedStyle]}>
-          <Text style={styles.text}>Spinner</Text>
-        </Animated.View>
+        <Animated.View style={[styles.box, animatedStyle]} />
       </View>
     )
   }
@@ -47,12 +55,7 @@ const styles = StyleSheet.create({
   box: {
     width: 100,
     height: 100,
-    backgroundColor: '#333',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  text: {
-    color: '#fff'
+    backgroundColor: '#333'
   }
 })
 
