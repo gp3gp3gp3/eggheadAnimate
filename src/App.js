@@ -1,50 +1,35 @@
 import React, { Component } from 'react'
 import {
-  View,
   StyleSheet,
-  Animated,
+  View,
   Text,
-  PanResponder
+  Animated
 } from 'react-native'
 
 class App extends Component {
 
   componentWillMount () {
-    this.animatedValue = new Animated.ValueXY()
-    this._value = { x: 0, y: 0 }
-    this.animatedValue.addListener(value => this._value = value)
-    this.panResponder = PanResponder.create({
-      onStartShouldSetPanResponder: (evt, gestureState) => true,
-      onMoveShouldSetPanResponder: (evt, gestureState) => true,
-      onPanResponderGrant: (e, gestureState) => {
-        this.animatedValue.setOffset({
-          x: this._value.x,
-          y: this._value.y
-        })
-        this.animatedValue.setValue({ x: 0, y: 0 })
-      },
-      onPanResponderMove: Animated.event([
-        null, { dx: this.animatedValue.x, dy: this.animatedValue.y }
-      ]),
-      onPanResponderRelease: (e, gestureState) => {
-        this.animatedValue.flattenOffset()
-        Animated.decay(this.animatedValue, {
-          deceleration: 0.997,
-          velocity: { x: gestureState.vx, y: gestureState.vy }
-        }).start()
-      }
-    })
+    this.animatedValue = new Animated.Value(0)
+  }
+
+  componentDidMout () {
+    Animated.timing(this.animatedValue, {
+      toValue: 150,
+      duration: 1500
+    }).start()
   }
 
   render () {
+    const interpolateColor = this.animatedValue.interpolate({
+      inputRange: [0, 150],
+      outputRange: ['rgb(0, 0, 0)', 'rgb(51,250, 170)']
+    })
     const animatedStyle = {
-      transform: this.animatedValue.getTranslateTransform()
+      backgroundColor: interpolateColor
     }
     return (
       <View style={styles.container}>
-        <Animated.View style={[styles.button, animatedStyle]} {...this.panResponder.panHandlers}>
-          <Text style={styles.text}>Drag Me</Text>
-        </Animated.View>
+        <Animated.View style={[styles.box, animatedStyle]} />
       </View>
     )
   }
@@ -56,15 +41,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  button: {
-    backgroundColor: '#333',
+  box: {
     width: 100,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  text: {
-    color: '#FFF'
+    height: 100
   }
 })
 
