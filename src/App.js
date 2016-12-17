@@ -4,49 +4,47 @@ import {
   StyleSheet,
   Animated,
   Text,
-  TouchableWithoutFeedback
+  PanResponder
 } from 'react-native'
 
 class App extends Component {
-  constructor (props) {
-    super(props)
-
-    this.handlePressIn = this.handlePressIn.bind(this)
-    this.handlePressOut = this.handlePressOut.bind(this)
-  }
 
   componentWillMount () {
-    this.animatedValue = new Animated.Value(1)
-  }
-
-  handlePressIn () {
-    Animated.spring(this.animatedValue, {
-      toValue: 0.5
-    }).start()
-  }
-
-  handlePressOut () {
-    Animated.spring(this.animatedValue, {
-      toValue: 1,
-      friction: 3,
-      tension: 40
-    }).start()
+    this.animatedValue = new Animated.ValueXY()
+    this._value = { x: 0, y: 0 }
+    this.animatedValue.addListener(value => this._value = value)
+    this.panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onPanResponderGrant: (e, gestureState) => {
+        this.animatedValue.setOffset({
+          x: this._value.x,
+          y: this._value.y
+        })
+        this.animatedValue.setValue({ x: 0, y: 0 })
+      },
+      onPanResponderMove: Animated.event([
+        null, { dx: this.animatedValue.x, dy: this.animatedValue.y }
+      ]),
+      onPanResponderRelease: (e, gestureState) => {
+        this.animatedValue.flattenOffset()
+        Animated.decay(this.animatedValue, {
+          deceleration: 0.997,
+          velocity: { x: gestureState.vx, y: gestureState.vy }
+        }).start()
+      }
+    })
   }
 
   render () {
     const animatedStyle = {
-      transform: [{ scale: this.animatedValue }]
+      transform: this.animatedValue.getTranslateTransform()
     }
     return (
       <View style={styles.container}>
-        <TouchableWithoutFeedback
-          onPressIn={this.handlePressIn}
-          onPressOut={this.handlePressOut}
-        >
-          <Animated.View style={[styles.button, animatedStyle]}>
-            <Text style={styles.text}>Press Me</Text>
-          </Animated.View>
-        </TouchableWithoutFeedback>
+        <Animated.View style={[styles.button, animatedStyle]} {...this.panResponder.panHandlers}>
+          <Text style={styles.text}>Drag Me</Text>
+        </Animated.View>
       </View>
     )
   }
